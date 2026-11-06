@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ケーキを なかよく わけよう！ レベル2</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ゲームひろば">
+<link rel="apple-touch-icon" href="./icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e6ecfb; --table:#d2dcf6; --card:#ffffff; --ink:#3b2a4a; --sub:#6e5a7e;
+  --berry:#ff5d8f; --sponge:#ffd98a; --crust:#f0b34a; --ok:#2fae6b; --soft:#fff0f5; --newtag:#5b7cfa;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1e2333; --table:#283048; --card:#33293b; --ink:#fbeef7; --sub:#d9c3e3; --soft:#43324c; --newtag:#8fa6ff;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1e2333; --table:#283048; --card:#33293b; --ink:#fbeef7; --sub:#d9c3e3; --soft:#43324c; --newtag:#8fa6ff;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(circle at 20px 20px,var(--table) 6px,transparent 7px);
+  background-size:40px 40px;
+  color:var(--ink);
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  font-weight:500;
+  -webkit-tap-highlight-color:transparent;
+}
+main{max-width:680px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:16px 16px 28px}
+.screen{display:none;flex:1;flex-direction:column;align-items:center;text-align:center}
+.screen.on{display:flex}
+
+h1{font-size:clamp(30px,7vw,46px);font-weight:800;line-height:1.25;margin:24px 0 8px;letter-spacing:.04em}
+.level{display:inline-block;background:var(--newtag);color:#fff;font-size:20px;font-weight:800;padding:4px 18px;border-radius:999px;margin-top:20px}
+.lead{font-size:20px;line-height:1.7;color:var(--sub);margin:8px 0 20px}
+.hero{animation:spin 18s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+button{font-family:inherit;color:inherit;cursor:pointer;border:none}
+button:focus-visible{outline:4px solid var(--berry);outline-offset:3px}
+.go{background:var(--berry);color:#fff;font-size:24px;font-weight:800;padding:16px 44px;border-radius:999px;box-shadow:0 6px 0 #c93a69;margin-top:12px}
+.go:active{transform:translateY(4px);box-shadow:0 2px 0 #c93a69}
+
+.top{width:100%;display:flex;align-items:center;gap:10px;margin:4px 0 14px}
+.dots{display:flex;gap:5px;flex:1;justify-content:center;flex-wrap:wrap}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--card);border:2px solid var(--sub);opacity:.5}
+.dot.done{background:var(--sponge);border-color:var(--crust);opacity:1}
+.dot.now{opacity:1;border-color:var(--berry)}
+.stars{font-size:20px;font-weight:800;min-width:64px;text-align:right}
+
+.tag{display:inline-block;font-size:15px;font-weight:800;padding:2px 12px;border-radius:999px;margin-bottom:6px}
+.tag.rev{background:var(--sponge);color:#5a3b00}
+.tag.new{background:var(--newtag);color:#fff}
+
+.prompt{background:var(--card);border-radius:28px;padding:16px 18px 20px;width:100%;font-size:22px;line-height:1.7;font-weight:800}
+.prompt .people{font-size:30px;letter-spacing:2px;line-height:1.4;display:inline-block;max-width:330px}
+.choices{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:18px 0;width:100%}
+.choice{background:var(--card);border-radius:24px;padding:12px;min-width:90px;border:4px solid transparent;transition:transform .15s}
+.choice.big{flex:1 1 200px;max-width:300px}
+.choice.three{flex:1 1 150px;max-width:200px}
+.choice:active{transform:scale(.96)}
+.choice.right{border-color:var(--ok);background:var(--soft)}
+.choice.wrong{animation:shake .4s;opacity:.45}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.num{font-size:32px;font-weight:800}
+.pie{display:block;margin:0 auto;max-width:100%;height:auto}
+
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-weight:800;font-size:1.4em;line-height:1.05;margin:0 4px}
+.frac span:first-child{border-bottom:3px solid currentColor;padding:0 6px 2px}
+.frac span:last-child{padding-top:2px}
+.choice .frac{font-size:38px}
+.lbl{margin-top:6px;font-size:18px}
+
+.feedback{display:none;width:100%;background:var(--card);border-radius:28px;padding:18px;border:4px solid var(--ok);font-size:20px;line-height:1.75}
+.feedback.on{display:block;animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+.feedback h2{margin:0 0 6px;font-size:28px;color:var(--ok)}
+.hint{min-height:32px;font-size:20px;font-weight:800;color:var(--berry)}
+
+.burst{position:fixed;pointer-events:none;font-size:30px;animation:fly 1s ease-out forwards;z-index:5}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(200deg);opacity:0}}
+
+.summary{background:var(--card);border-radius:28px;padding:20px;font-size:21px;line-height:1.8;margin:14px 0}
+.bigstars{font-size:40px;letter-spacing:3px;line-height:1.3}
+
+@media (prefers-reduced-motion:reduce){.hero,.burst{animation:none}.feedback.on{animation:none}}
+.home{align-self:flex-start;display:inline-block;background:var(--card);color:var(--ink);text-decoration:none;font-weight:800;font-size:18px;padding:8px 18px;border-radius:999px;margin-bottom:4px}
+.home:focus-visible{outline:4px solid var(--berry);outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+  <section class="screen on" id="start">
+    <a class="home" href="./index.html">🏠 ひろばへ もどる</a>
+    <span class="level">レベル2</span>
+    <h1>ケーキを<br>なかよく わけよう！</h1>
+    <div class="hero" id="heroCake"></div>
+    <p class="lead">こんどは 12人まで わけるよ。<br>まえの もんだいも まざっているから<br>おもいだしながら ちょうせんしよう！</p>
+    <button class="go" id="startBtn">はじめる</button>
+  </section>
+
+  <section class="screen" id="play">
+    <div class="top">
+      <div class="dots" id="dots"></div>
+      <div class="stars" id="starCount">⭐0</div>
+    </div>
+    <div class="prompt" id="prompt"></div>
+    <div class="choices" id="choices"></div>
+    <div class="hint" id="hint"></div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <section class="screen" id="end">
+    <a class="home" href="./index.html">🏠 ひろばへ もどる</a>
+    <h1>ケーキめいじん<br>たんじょう！</h1>
+    <div class="bigstars" id="endStars"></div>
+    <div class="summary" id="summary"></div>
+    <button class="go" id="againBtn">もういちど あそぶ</button>
+  </section>
+</main>
+
+<script>
+const OLD=[2,3,4,8];
+const NEW=[5,6,10,12];
+const ALL=[2,3,4,5,6,8,10,12];
+// [もんだいの しゅるい, 'old'=ふくしゅう / 'new'=あたらしい]
+const ORDER=[
+  ['equal','old'],['cut','new'],['name','old'],['name','new'],
+  ['big','new'],['cut','old'],['equal','new'],['name','new'],
+  ['big3','mix'],['cut','new'],['big','old'],['big3','new']
+];
+const TOTAL=ORDER.length;
+const UNEQ={2:[.68,.32],3:[.5,.3,.2],4:[.4,.14,.28,.18],5:[.3,.12,.22,.16,.2],6:[.25,.09,.2,.12,.19,.15]};
+
+const $=id=>document.getElementById(id);
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const eq=n=>Array(n).fill(1/n);
+const read=n=>`${n}ぶんの1`;
+const frac=n=>`<span class="frac" aria-label="${read(n)}"><span>1</span><span>${n}</span></span>`;
+const pool=k=>k==='old'?OLD:k==='new'?NEW:ALL;
+const tag=k=>k==='old'?'<span class="tag rev">ふくしゅう</span><br>':k==='new'?'<span class="tag new">あたらしい</span><br>':'';
+const near=(n,count)=>ALL.filter(x=>x!==n).sort((a,b)=>Math.abs(a-n)-Math.abs(b-n)).slice(0,count);
+
+function pie(parts,hl=[],size=160){
+  const c=size/2,r=size/2-8;
+  let a=-Math.PI/2;
+  let s=`<svg class="pie" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true">`;
+  s+=`<circle cx="${c}" cy="${c}" r="${r+5}" fill="var(--crust)"/>`;
+  const berry=parts.length>8?size/11:parts.length>4?size/9:size/6;
+  parts.forEach((p,i)=>{
+    const b=a+p*2*Math.PI;
+    const x1=c+r*Math.cos(a),y1=c+r*Math.sin(a),x2=c+r*Math.cos(b),y2=c+r*Math.sin(b);
+    const on=hl.includes(i);
+    s+=`<path d="M${c},${c} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${p>.5?1:0} 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${on?'var(--berry)':'var(--sponge)'}" stroke="#fff" stroke-width="${parts.length>8?2.5:3}" stroke-linejoin="round"/>`;
+    if(on){const m=(a+b)/2;s+=`<text x="${(c+r*.66*Math.cos(m)).toFixed(1)}" y="${(c+r*.66*Math.sin(m)).toFixed(1)}" font-size="${Math.max(14,berry).toFixed(0)}" text-anchor="middle" dominant-baseline="central">🍓</text>`}
+    a=b;
+  });
+  return s+'</svg>';
+}
+
+function makeQ(type,k){
+  const T=tag(k);
+  if(type==='equal'){
+    const n=rnd(pool(k).filter(x=>UNEQ[x]).length?pool(k).filter(x=>UNEQ[x]):[2,3,4]);
+    const left=Math.random()<.5;
+    return{
+      prompt:`${T}${n}人で なかよく わけたいな。<br>みんな おなじ おおきさに きれているのは どっち？`,
+      choices:[{html:pie(left?eq(n):UNEQ[n]),ok:left},{html:pie(left?UNEQ[n]:eq(n)),ok:!left}],cls:'big',
+      wrongHint:'よく みて！ ちいさい きれが ないかな？',
+      explain:`${n}人でも きまりは おなじ。<br>ぜんぶ おなじ おおきさに きるのが ぶんすうの きほん！`,
+      after:''
+    };
+  }
+  if(type==='cut'){
+    const p=rnd(pool(k));
+    const opts=shuffle([p,...shuffle(near(p,4)).slice(0,3)]);
+    return{
+      prompt:`${T}<span class="people">${'🧒'.repeat(p)}</span><br>${p}人で わけるよ。<br>ケーキを いくつに きる？`,
+      choices:opts.map(n=>({html:`<span class="num">${n}こ</span>`,ok:n===p})),
+      wrongHint:'ひとりに 1こずつ。ゆびで なん人か かぞえてみよう！',
+      explain:`${p}こに きると、ひとりぶんは ${frac(p)}<br>「${read(p)}」って いうよ。`,
+      after:pie(eq(p),[0],160)
+    };
+  }
+  if(type==='big'){
+    const src=pool(k);
+    const [a,b]=shuffle(src).slice(0,2),big=Math.min(a,b);
+    return{
+      prompt:`${T}🍓の ところを たべられるよ。<br>おおきいのは どっち？`,
+      choices:[a,b].map(n=>({html:pie(eq(n),[0],140)+`<div class="lbl">${frac(n)}</div>`,ok:n===big})),cls:'big',
+      wrongHint:'🍓の いろの ところを くらべてみて！',
+      explain:`${read(big)}の ほうが おおきい！<br>わける かずが すくないほど 1こは おおきく なるよ。`,
+      after:''
+    };
+  }
+  if(type==='big3'){
+    const src=k==='new'?shuffle(NEW).slice(0,2).concat(rnd(OLD)):shuffle(ALL).slice(0,3);
+    const set=shuffle([...new Set(src)]);
+    while(set.length<3){const x=rnd(ALL);if(!set.includes(x))set.push(x)}
+    const big=Math.min(...set),small=Math.max(...set);
+    return{
+      prompt:`${T}3つの なかで<br>いちばん おおきい 🍓は どれ？`,
+      choices:set.map(n=>({html:pie(eq(n),[0],120)+`<div class="lbl">${frac(n)}</div>`,ok:n===big})),cls:'three',
+      wrongHint:'したの かずが ちいさいのは どれかな？',
+      explain:`いちばん おおきいのは ${frac(big)}<br>いちばん ちいさいのは ${frac(small)}<br>したの かずが おおきいほど 1こは ちいさく なるね。`,
+      after:''
+    };
+  }
+  const n=rnd(pool(k));
+  const opts=shuffle([n,...near(n,2)]);
+  return{
+    prompt:`${T}${pie(eq(n),[0],180)}🍓の ところは どれかな？`,
+    choices:opts.map(x=>({html:frac(x),ok:x===n})),
+    wrongHint:'ぜんぶで いくつに きれているか、ゆびで かぞえてみよう！',
+    explain:`おなじ おおきさに ${n}こに わけた 1こぶん。<br>だから ${frac(n)}（${read(n)}）！`,
+    after:''
+  };
+}
+
+let ac=null;
+function tone(freqs){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{
+      const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+i*.12;
+      o.type='triangle';o.frequency.value=f;
+      g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+.25);
+      o.connect(g).connect(ac.destination);o.start(t);o.stop(t+.26);
+    });
+  }catch(e){}
+}
+
+function burst(el){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+  ['🍓','⭐','🎉','🍰','✨','⭐'].forEach((e,i)=>{
+    const s=document.createElement('span');s.className='burst';s.textContent=e;
+    const ang=i/6*Math.PI*2;
+    s.style.left=x+'px';s.style.top=y+'px';
+    s.style.setProperty('--dx',Math.cos(ang)*110+'px');s.style.setProperty('--dy',Math.sin(ang)*110+'px');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000);
+  });
+}
+
+let idx=0,stars=0,q=null,missed=false,done=false;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)}
+
+function renderDots(){
+  $('dots').innerHTML=Array.from({length:TOTAL},(_,i)=>`<span class="dot ${i<idx?'done':i===idx?'now':''}"></span>`).join('');
+  $('starCount').textContent='⭐'+stars;
+}
+
+function next(){
+  if(idx>=TOTAL)return finish();
+  const [type,k]=ORDER[idx];
+  q=makeQ(type,k);missed=false;done=false;
+  renderDots();
+  $('prompt').innerHTML=q.prompt;
+  $('hint').textContent='';
+  $('feedback').className='feedback';
+  $('choices').innerHTML='';
+  q.choices.forEach(ch=>{
+    const b=document.createElement('button');
+    b.className='choice'+(q.cls?' '+q.cls:'');
+    b.innerHTML=ch.html;
+    b.onclick=()=>answer(b,ch.ok);
+    $('choices').appendChild(b);
+  });
+}
+
+function answer(btn,ok){
+  if(done||btn.classList.contains('wrong'))return;
+  if(!ok){
+    missed=true;btn.classList.add('wrong');
+    $('hint').textContent='おしい！ '+q.wrongHint;
+    tone([330,262]);return;
+  }
+  done=true;btn.classList.add('right');
+  if(!missed)stars++;
+  tone([523,659,784]);burst(btn);
+  $('hint').textContent='';
+  const fb=$('feedback');
+  fb.innerHTML=`<h2>${missed?'できたね！':'せいかい！'}</h2>${q.after}<p style="margin:8px 0 14px">${q.explain}</p><button class="go" id="nextBtn">${idx===TOTAL-1?'けっかを みる':'つぎへ'}</button>`;
+  fb.className='feedback on';
+  $('nextBtn').onclick=()=>{idx++;next()};
+  renderDots();
+  fb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function finish(){
+  $('endStars').textContent='⭐'.repeat(stars)||'🍰';
+  $('summary').innerHTML=`${TOTAL}もん中 ${stars}こ ほしを あつめたよ！<br><br>あたらしく おぼえた ぶんすう<br>${NEW.map(frac).join(' ')}<br><br>なん人でも「おなじ おおきさに わけた 1こぶん」。<br>12人の パーティーでも だいじょうぶ！`;
+  show('end');tone([523,659,784,1047]);
+}
+
+function start(){idx=0;stars=0;show('play');next()}
+
+$('heroCake').innerHTML=pie(eq(12),[0,6],220);
+$('startBtn').onclick=start;
+$('againBtn').onclick=start;
+</script>
+</body>
+</html>
