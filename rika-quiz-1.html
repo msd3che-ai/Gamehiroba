@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>りかクイズ 3・4年生</title>
+<style>
+:root{
+  --paper:#FBFDF8; --grid:#DCEBE3; --ink:#1F3A5F; --ink-soft:#5A6F8A;
+  --red:#E2412E; --white:#FFFFFF;
+  --bio:#3E9B4F; --geo:#3456A6; --phy:#E39A12; --chem:#8A5CC2; --mix:#1F3A5F;
+  --font:"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN","Zen Maru Gothic","BIZ UDGothic","Meiryo",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:var(--font); color:var(--ink); background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+  -webkit-tap-highlight-color:transparent;
+  line-height:1.6;
+}
+rt{font-size:.5em;font-weight:400;color:var(--ink-soft)}
+.wrap{max-width:760px;margin:0 auto;padding:20px 18px 40px}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid #F6C744;outline-offset:3px}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ── タイトル ── */
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.home-link{display:inline-block;font-size:15px;color:var(--ink-soft);text-decoration:none}
+.rubybtn{border:2px solid var(--ink-soft);background:var(--white);border-radius:999px;padding:5px 12px;font-size:14px}
+body.noruby rt{display:none}
+.title{position:relative;margin:8px 0 22px}
+.title h1{font-size:clamp(44px,11vw,72px);line-height:1.05;margin:0;letter-spacing:.04em;font-weight:800}
+.title h1 .flask{display:inline-block;transform:rotate(-8deg)}
+.grade{
+  display:inline-block;margin-top:10px;background:var(--red);color:#fff;
+  font-weight:700;font-size:18px;padding:4px 14px;border-radius:6px;transform:rotate(-2deg)
+}
+.lead{font-size:16px;color:var(--ink-soft);margin:12px 0 0}
+
+h2{font-size:20px;margin:26px 0 10px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{
+  text-align:left;border:3px solid var(--c);background:var(--white);border-radius:14px;
+  padding:14px 14px 12px;position:relative;min-height:112px;
+  box-shadow:4px 4px 0 var(--c);transition:transform .12s
+}
+.field .emoji{font-size:34px;line-height:1}
+.field .name{display:block;font-size:19px;font-weight:800;margin-top:6px}
+.field .sub{display:block;font-size:13px;color:var(--ink-soft);margin-top:2px;line-height:1.4}
+.field[aria-pressed="true"]{background:var(--c);color:#fff;transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.field[aria-pressed="true"] .sub{color:#fff}
+.field.all{grid-column:1 / -1;min-height:auto;display:flex;align-items:center;gap:12px}
+.field.all .name{margin:0}
+
+.levels{display:flex;gap:10px;flex-wrap:wrap}
+.lv{
+  flex:1 1 140px;border:3px solid var(--ink);background:var(--white);border-radius:999px;
+  padding:10px 12px;font-size:17px;font-weight:700
+}
+.lv small{display:block;font-size:12px;font-weight:400;color:var(--ink-soft)}
+.lv[aria-pressed="true"]{background:var(--ink);color:#fff}
+.lv[aria-pressed="true"] small{color:#dfe6f0}
+
+.start{
+  display:block;width:100%;margin-top:28px;border:none;border-radius:16px;
+  background:var(--red);color:#fff;font-size:24px;font-weight:800;padding:18px;
+  box-shadow:0 6px 0 #A92B1C
+}
+.start:active{transform:translateY(4px);box-shadow:0 2px 0 #A92B1C}
+
+/* ── クイズ ── */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.quit{border:2px solid var(--ink-soft);background:var(--white);border-radius:999px;padding:6px 14px;font-size:15px}
+.dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.dot{width:16px;height:16px;border-radius:4px;border:2px solid var(--ink-soft);background:var(--white)}
+.dot.ok{background:var(--bio);border-color:var(--bio)}
+.dot.ng{background:var(--red);border-color:var(--red)}
+.dot.now{border-color:var(--ink);border-width:3px}
+
+.card{
+  position:relative;background:var(--white);border-radius:6px;
+  padding:22px 22px 22px 46px;border:2px solid var(--ink);
+  box-shadow:6px 6px 0 rgba(31,58,95,.18);min-height:150px
+}
+.card::before{content:"";position:absolute;left:30px;top:0;bottom:0;width:2px;background:#F2A49A}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:#fff;background:var(--c);padding:2px 10px;border-radius:4px}
+.tag.lv2{background:var(--white);color:var(--ink);border:2px solid var(--ink);margin-left:6px;padding:0 8px}
+.qnum{font-size:14px;color:var(--ink-soft);margin-top:10px}
+.q{font-size:clamp(21px,4.6vw,27px);font-weight:700;margin:4px 0 0;line-height:1.75}
+
+.stamp{position:absolute;right:14px;top:10px;width:110px;height:110px;pointer-events:none;display:none}
+.stamp.on{display:block}
+.stamp path{fill:none;stroke:var(--red);stroke-width:11;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:400;animation:draw .45s ease-out forwards}
+.stamp path+path{animation-delay:.2s}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.ch{
+  border:3px solid var(--ink);background:var(--white);border-radius:14px;
+  font-size:clamp(17px,3.8vw,21px);font-weight:700;padding:16px 12px;min-height:78px;line-height:1.45
+}
+.ch:disabled{cursor:default}
+.ch.right{background:#E3F4E5;border-color:var(--bio)}
+.ch.wrong{background:#FDE4E0;border-color:var(--red);text-decoration:line-through}
+.ch.dim{opacity:.45}
+
+.memo{
+  display:none;margin-top:16px;background:#FFF7D6;border:2px dashed #D9B23A;border-radius:10px;
+  padding:12px 16px;font-size:17px;line-height:1.8
+}
+.memo.on{display:block}
+.memo b{display:block;font-size:15px}
+.next{display:none;width:100%;margin-top:14px;border:none;border-radius:14px;background:var(--ink);color:#fff;font-size:21px;font-weight:800;padding:15px}
+.next.on{display:block}
+
+/* ── けっか ── */
+.result{text-align:center;padding-top:10px}
+.score{font-size:clamp(40px,10vw,64px);font-weight:800;margin:6px 0 0;line-height:1.1}
+.score small{font-size:.42em;font-weight:700}
+.hanamaru{width:180px;height:180px;margin:0 auto;display:block}
+.hanamaru path{fill:none;stroke:var(--red);stroke-width:8;stroke-linecap:round;stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 1.2s ease-out forwards}
+.comment{font-size:20px;font-weight:700;margin:8px 0 0}
+.review{text-align:left;margin-top:24px}
+.review h2{margin-top:0}
+.rv{background:var(--white);border:2px solid var(--ink);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:16px}
+.rv .a{color:var(--bio);font-weight:800}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.btns button{border:3px solid var(--ink);background:var(--white);border-radius:14px;font-size:19px;font-weight:800;padding:14px}
+.btns .again{background:var(--red);border-color:var(--red);color:#fff}
+
+@media (max-width:440px){
+  .choices{grid-template-columns:1fr}
+  .ch{min-height:60px}
+  .card{padding-left:40px}
+  .card::before{left:24px}
+  .stamp{width:84px;height:84px}
+}
+@media (prefers-reduced-motion:reduce){
+  .stamp path,.hanamaru path{animation:none;stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ スタート ═══ -->
+<section id="home" class="screen on">
+  <div class="topline"><a class="home-link" href="./">← ゲームひろばへもどる</a><button class="rubybtn" id="rubyToggle">ふりがな：あり</button></div>
+  <div class="title">
+    <h1><span class="flask">🧪</span>りかクイズ</h1>
+    <span class="grade">3・4年生</span>
+    <p class="lead">どの仲間《なかま》のクイズにする？ 10問《もん》出るよ。</p>
+  </div>
+
+  <h2>仲間《なかま》を選《えら》ぶ</h2>
+  <div class="fields" id="fields"></div>
+
+  <h2>むずかしさ</h2>
+  <div class="levels" id="levels">
+    <button class="lv" data-lv="1" aria-pressed="true">きほん ★<small>学校で習《なら》うこと</small></button>
+    <button class="lv" data-lv="2" aria-pressed="false">チャレンジ ★★<small>もっとくわしく</small></button>
+    <button class="lv" data-lv="0" aria-pressed="false">まぜこぜ<small>どっちも出る</small></button>
+  </div>
+
+  <button class="start" id="start">スタート！</button>
+</section>
+
+<!-- ═══ クイズ ═══ -->
+<section id="quiz" class="screen">
+  <div class="bar">
+    <button class="quit" id="quit">やめる</button>
+    <div class="dots" id="dots"></div>
+  </div>
+  <div class="card" id="card">
+    <span class="tag" id="tag"></span><span class="tag lv2" id="tag2">★★</span>
+    <div class="qnum" id="qnum"></div>
+    <p class="q" id="qtext"></p>
+    <svg class="stamp" id="stamp" viewBox="0 0 120 120" aria-hidden="true"></svg>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="memo" id="memo" aria-live="polite"></div>
+  <button class="next" id="next">次《つぎ》へ</button>
+</section>
+
+<!-- ═══ けっか ═══ -->
+<section id="result" class="screen">
+  <div class="result">
+    <svg class="hanamaru" id="hanamaru" viewBox="0 0 200 200" aria-hidden="true"></svg>
+    <p class="score" id="score"></p>
+    <p class="comment" id="comment"></p>
+  </div>
+  <div class="review" id="review"></div>
+  <div class="btns">
+    <button class="again" id="again">もう一度《いちど》</button>
+    <button id="back">選《えら》び直す</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* 書き方メモ：漢字《かな》と書くと、ふりがながつきます（4年生までの漢字を使用） */
+const FIELDS = {
+  bio: {name:"生き物《もの》", emoji:"🐛", sub:"こん虫・植物《しょくぶつ》・人の体・季節《きせつ》", c:"var(--bio)"},
+  geo: {name:"地球《ちきゅう》とうちゅう", emoji:"🌙", sub:"太陽《たいよう》・天気・月と星", c:"var(--geo)"},
+  phy: {name:"力・光・電気", emoji:"🧲", sub:"じしゃく・電気・音・重《おも》さ", c:"var(--phy)"},
+  chem:{name:"もののせいしつ", emoji:"💧", sub:"空気と水・温《あたた》まり方・水のすがた", c:"var(--chem)"}
+};
+
+/* f:なかま lv:1きほん/2チャレンジ  q:もんだい  a:[正かい, まちがい…]  e:なるほどメモ */
+const Q = [
+/* ── 生き物 きほん ── */
+{f:"bio",lv:1,q:"こん虫の体は、いくつの部分《ぶぶん》に分かれている？",a:["3つ","2つ","4つ","5つ"],e:"頭・むね・はらの3つに分かれているよ。"},
+{f:"bio",lv:1,q:"こん虫の足は何本？",a:["6本","8本","4本","10本"],e:"こん虫の足は6本。全部《ぜんぶ》むねについているよ。"},
+{f:"bio",lv:1,q:"こん虫の足がついているのは、体のどこ？",a:["むね","頭","はら","頭とはら"],e:"6本の足も羽も、むねについているよ。"},
+{f:"bio",lv:1,q:"こん虫ではないのはどれ？",a:["クモ","アリ","トンボ","バッタ"],e:"クモは足が8本で、体が2つに分かれているから、こん虫ではないよ。"},
+{f:"bio",lv:1,q:"モンシロチョウの育《そだ》つ順番《じゅんばん》は？",a:["たまご→よう虫→さなぎ→成虫《せいちゅう》","たまご→さなぎ→よう虫→成虫《せいちゅう》","たまご→よう虫→成虫《せいちゅう》","よう虫→たまご→さなぎ→成虫《せいちゅう》"],e:"よう虫は何回か皮《かわ》をぬいで大きくなり、さなぎになってからチョウになるよ。"},
+{f:"bio",lv:1,q:"さなぎにならずに大人になるこん虫はどれ？",a:["バッタ","モンシロチョウ","カブトムシ","テントウムシ"],e:"バッタ・トンボ・セミは、さなぎにならないよ。"},
+{f:"bio",lv:1,q:"モンシロチョウのよう虫が食べるのは？",a:["キャベツの葉《は》","ミカンの葉《は》","花のみつ","小さな虫"],e:"たまごはキャベツなどの葉《は》に産《う》みつけられるよ。花のみつをすうのは大人のチョウ。"},
+{f:"bio",lv:1,q:"植物《しょくぶつ》の体で、土の中で水をすい上げるところは？",a:["根《ね》","くき","葉《は》","花"],e:"植物《しょくぶつ》の体は、根《ね》・くき・葉《は》でできているよ。"},
+{f:"bio",lv:1,q:"種《たね》から芽《め》が出て、最初《さいしょ》に開《ひら》く葉《は》を何という？",a:["子葉《しよう》","本葉《ほんば》","花びら","つぼみ"],e:"子葉《しよう》のあとに出てくる葉《は》を「本葉《ほんば》」というよ。"},
+{f:"bio",lv:1,q:"ホウセンカの花がさいたあと、何ができる？",a:["実《み》","根《ね》","子葉《しよう》","つぼみ"],e:"花のあとに実《み》ができ、その中に種《たね》ができるよ。種《たね》を残《のこ》してかれていくんだ。"},
+{f:"bio",lv:1,q:"寒《さむ》い冬、ツバメはどうしている？",a:["南のあたたかい国へ行っている","巣《す》の中でねむっている","土の中にもぐっている","たまごのすがたでいる"],e:"春に日本へ来て子育《こそだ》てをし、秋に南の国へわたるよ。"},
+{f:"bio",lv:1,q:"冬のヒキガエルはどうしている？",a:["土の中でじっとしている","池で泳《およ》いでいる","南の国へ行っている","たまごを産《う》んでいる"],e:"土の中で、春までじっとしているよ。これを「冬みん」というよ。"},
+{f:"bio",lv:1,q:"ほねとほねのつなぎ目で、体が曲《ま》がるところを何という？",a:["関節《かんせつ》","きん肉","けん","ひふ"],e:"ひじやひざ、指《ゆび》にも関節《かんせつ》があるよ。"},
+{f:"bio",lv:1,q:"うでを曲《ま》げたとき、うでの内側《うちがわ》のきん肉はどうなる？",a:["ちぢむ","ゆるむ","動《うご》かない","なくなる"],e:"内側《うちがわ》のきん肉がちぢむと、うでが曲《ま》がる。外側《そとがわ》のきん肉はゆるむよ。"},
+{f:"bio",lv:1,q:"暑《あつ》い夏、ヘチマのくきののび方は？",a:["よくのびる","ほとんどのびない","ちぢんでいく","かれてしまう"],e:"気温《きおん》が高い夏は、よく育《そだ》ってぐんぐんのびるよ。"},
+{f:"bio",lv:1,q:"体をささえたり、体の中を守《まも》ったりする、かたいものは？",a:["ほね","きん肉","かみの毛","つめ"],e:"頭のほねはのうを、むねのほねは心ぞうやはいを守《まも》っているよ。"},
+/* ── 生き物 チャレンジ ── */
+{f:"bio",lv:2,q:"こん虫の羽は、ふつう何まい？",a:["4まい","2まい","6まい","8まい"],e:"チョウやトンボは4まい。ハエやカは2まいだよ。"},
+{f:"bio",lv:2,q:"羽が2まいしかないこん虫はどれ？",a:["ハエ","チョウ","トンボ","ハチ"],e:"ハエ・カ・アブの仲間《なかま》は、羽が2まい。"},
+{f:"bio",lv:2,q:"さなぎにならない育《そだ》ち方を何という？",a:["不完全変態《ふかんぜんへんたい》","完全変態《かんぜんへんたい》","冬みん","だっぴ"],e:"さなぎになるのは「完全変態《かんぜんへんたい》」、ならないのは「不完全変態《ふかんぜんへんたい》」。"},
+{f:"bio",lv:2,q:"カブトムシは、冬をどのすがたですごす？",a:["よう虫","たまご","さなぎ","成虫《せいちゅう》"],e:"土の中で、よう虫のすがたで冬をこすよ。"},
+{f:"bio",lv:2,q:"オオカマキリは、冬をどのすがたですごす？",a:["たまご","よう虫","さなぎ","成虫《せいちゅう》"],e:"あわが固《かた》まったような入れ物《もの》の中で、たまごのすがたで冬をこすよ。"},
+{f:"bio",lv:2,q:"ナナホシテントウは、冬をどのすがたですごす？",a:["成虫《せいちゅう》","たまご","よう虫","さなぎ"],e:"成虫《せいちゅう》が落《お》ち葉《ば》の下などに集《あつ》まって冬をこすよ。"},
+{f:"bio",lv:2,q:"トンボのよう虫を何とよぶ？",a:["ヤゴ","ボウフラ","イモムシ","オタマジャクシ"],e:"ヤゴは水の中でくらす。ボウフラはカのよう虫だよ。"},
+{f:"bio",lv:2,q:"アゲハのよう虫が食べるのは？",a:["ミカンやサンショウの葉《は》","キャベツの葉《は》","サクラの葉《は》","イネの葉《は》"],e:"モンシロチョウはキャベツ、アゲハはミカンの仲間《なかま》。よく出るちがいだよ。"},
+{f:"bio",lv:2,q:"こん虫の、小さな目がたくさん集《あつ》まった大きな目を何という？",a:["ふくがん","たんがん","しょっかく","口"],e:"大きな目は「ふくがん」。小さな目「たんがん」をもつこん虫もいるよ。"},
+{f:"bio",lv:2,q:"秋に北の国から日本へ来て、冬をすごす鳥はどれ？",a:["ハクチョウ","ツバメ","スズメ","ハト"],e:"ハクチョウやカモは「冬鳥」。ツバメは春に来る「夏鳥」だよ。"},
+{f:"bio",lv:2,q:"冬のサクラの木のえだについている、春に花や葉《は》になるものは？",a:["冬芽《ふゆめ》","種《たね》","子葉《しよう》","根《ね》"],e:"冬芽《ふゆめ》の中で、春のじゅんびをしているよ。"},
+{f:"bio",lv:2,q:"大人の人の体のほねは、全部《ぜんぶ》で約《やく》何本？",a:["約《やく》200本","約《やく》20本","約《やく》50本","約《やく》1000本"],e:"大人で約《やく》200本（206本）あるよ。"},
+{f:"bio",lv:2,q:"きん肉とほねをつないでいる、じょうぶな部分《ぶぶん》を何という？",a:["けん","関節《かんせつ》","ひふ","つめ"],e:"かかとの「アキレスけん」が有名《ゆうめい》だよ。"},
+/* ── 地球とうちゅう きほん ── */
+{f:"geo",lv:1,q:"太陽《たいよう》がのぼってくるのは、どの方角？",a:["東","西","南","北"],e:"太陽《たいよう》は東からのぼり、南の空を通って、西にしずむよ。"},
+{f:"geo",lv:1,q:"太陽《たいよう》がしずむのは、どの方角？",a:["西","東","南","北"],e:"東→南→西と動《うご》いて見えるよ。"},
+{f:"geo",lv:1,q:"かげができるのは、太陽《たいよう》から見てどちら側《がわ》？",a:["太陽《たいよう》の反対側《はんたいがわ》","太陽《たいよう》と同じ側《がわ》","いつも真下《ました》","いつも東側《ひがしがわ》"],e:"光がさえぎられて、太陽《たいよう》と反対側《はんたいがわ》にかげができるよ。"},
+{f:"geo",lv:1,q:"朝、かげはどの方角にのびている？",a:["西","東","南","北"],e:"朝の太陽《たいよう》は東にあるので、かげは反対《はんたい》の西にのびるよ。"},
+{f:"geo",lv:1,q:"日なたと日かげの地面《じめん》、温《あたた》かいのはどっち？",a:["日なた","日かげ","どちらも同じ","雨の日の地面《じめん》"],e:"日光が当たると、地面《じめん》が温《あたた》められるよ。"},
+{f:"geo",lv:1,q:"方角を調《しら》べるときに使《つか》う道具《どうぐ》は？",a:["方位《ほうい》じしん","温度計《おんどけい》","虫めがね","ものさし"],e:"はりの色のついたほうが北を指《さ》すよ。"},
+{f:"geo",lv:1,q:"晴れた日、気温《きおん》がいちばん高くなるのはいつごろ？",a:["午後2時ごろ","朝7時ごろ","正午《しょうご》ぴったり","夜9時ごろ"],e:"太陽《たいよう》が地面《じめん》を温《あたた》め、その地面《じめん》が空気を温《あたた》めるので、お昼より少しおくれるよ。"},
+{f:"geo",lv:1,q:"雨の日の気温《きおん》は、1日の中でどう変《か》わる？",a:["あまり変《か》わらない","大きく上がり下がりする","ずっと上がる","ずっと下がる"],e:"雲が日光をさえぎるので、気温《きおん》の変《か》わり方が小さいよ。"},
+{f:"geo",lv:1,q:"気温《きおん》は、地面《じめん》からどれくらいの高さではかる？",a:["1.2〜1.5mくらい","地面《じめん》ぴったり","5mくらい","10mくらい"],e:"風通しがよく、日光が直《ちょく》せつ当たらないところではかるよ。"},
+{f:"geo",lv:1,q:"雨水は、どんなところへ流《なが》れていく？",a:["高いところから低《ひく》いところ","低《ひく》いところから高いところ","いつも北のほう","風のふくほう"],e:"だから水たまりは、まわりより低《ひく》いところにできるよ。"},
+{f:"geo",lv:1,q:"水が早くしみこむのはどっち？",a:["すな場のすな","校庭《こうてい》の土","どちらも同じ","どちらもしみこまない"],e:"つぶが大きいほうが、すき間が大きくて、水が早くしみこむよ。"},
+{f:"geo",lv:1,q:"まんまるに見える月を何という？",a:["満月《まんげつ》","三日月","半月","新月"],e:"月の形は、毎日少しずつ変《か》わって見えるよ。"},
+{f:"geo",lv:1,q:"月はどの方角からのぼる？",a:["東","西","南","北"],e:"太陽《たいよう》と同じように、東→南→西と動《うご》いて見えるよ。"},
+{f:"geo",lv:1,q:"時間がたつと、星ざの星のならび方はどうなる？",a:["変《か》わらない","ばらばらになる","さかさまになる","ちぢんでいく"],e:"見える位置《いち》は変《か》わるけど、ならび方は変《か》わらないよ。"},
+{f:"geo",lv:1,q:"1等星《とうせい》・3等星《とうせい》・6等星《とうせい》のうち、いちばん明るいのは？",a:["1等星《とうせい》","3等星《とうせい》","6等星《とうせい》","みんな同じ"],e:"数字が小さいほど明るい星だよ。"},
+{f:"geo",lv:1,q:"星の色はどうなっている？",a:["星によっていろいろな色がある","全部《ぜんぶ》白","全部《ぜんぶ》黄色","全部《ぜんぶ》赤"],e:"赤っぽい星、白い星、青白い星などがあるよ。"},
+/* ── 地球とうちゅう チャレンジ ── */
+{f:"geo",lv:2,q:"「夏の大三角」にふくまれない星は？",a:["シリウス","ベガ","アルタイル","デネブ"],e:"夏の大三角はベガ・アルタイル・デネブ。シリウスは冬の大三角の星だよ。"},
+{f:"geo",lv:2,q:"さそりざの赤い1等星《とうせい》は？",a:["アンタレス","ベテルギウス","シリウス","ベガ"],e:"夏の南の空に見える、赤い星だよ。"},
+{f:"geo",lv:2,q:"オリオンざの赤い1等星《とうせい》は？",a:["ベテルギウス","リゲル","アンタレス","ベガ"],e:"リゲルは、オリオンざの青白い1等星《とうせい》だよ。"},
+{f:"geo",lv:2,q:"北の空の星は、どの星を中心に回って見える？",a:["北極星《ほっきょくせい》","シリウス","ベガ","月"],e:"北極星《ほっきょくせい》はほとんど動《うご》かないので、方角の目印《めじるし》になるよ。"},
+{f:"geo",lv:2,q:"北斗七星《ほくとしちせい》は、どの星ざの一部《いちぶ》？",a:["おおぐまざ","こぐまざ","オリオンざ","カシオペヤざ"],e:"北極星《ほっきょくせい》があるのは、こぐまざだよ。"},
+{f:"geo",lv:2,q:"北の空の星は、1時間に約《やく》何度《なんど》動《うご》いて見える？",a:["15度《ど》","1度《ど》","30度《ど》","90度《ど》"],e:"24時間で1回り（360度《ど》）だから、360÷24＝15度《ど》。時計のはりと反対《はんたい》回りだよ。"},
+{f:"geo",lv:2,q:"太陽《たいよう》が真南《まみなみ》に来ることを何という？",a:["南中《なんちゅう》","日の出","日食《にっしょく》","夏至《げし》"],e:"南中《なんちゅう》したとき、太陽《たいよう》はいちばん高く、かげはいちばん短《みじか》くなるよ。"},
+{f:"geo",lv:2,q:"満月《まんげつ》が南の空の高いところに見えるのは、いつごろ？",a:["真夜中《まよなか》（午前0時ごろ）","正午《しょうご》ごろ","夕方6時ごろ","朝6時ごろ"],e:"満月《まんげつ》は夕方に東からのぼり、真夜中《まよなか》に南、朝に西へしずむよ。"},
+{f:"geo",lv:2,q:"右半分が光る半月が、南の空に見えるのはいつごろ？",a:["夕方（午後6時ごろ）","真夜中《まよなか》","朝6時ごろ","明け方4時ごろ"],e:"右半分が光る半月（上げんの月）は、お昼にのぼり、夕方に南に来るよ。"},
+{f:"geo",lv:2,q:"晴れた日、1日で気温《きおん》がいちばん低《ひく》いのは？",a:["日の出前ごろ","真夜中《まよなか》ちょうど","正午《しょうご》","夕方"],e:"夜の間ずっと地面《じめん》が冷《ひ》え続《つづ》けるので、朝早くがいちばん低《ひく》いよ。"},
+{f:"geo",lv:2,q:"空全体《そらぜんたい》を10としたとき、雲の量《りょう》がいくつまでなら「晴れ」？",a:["8","3","5","10"],e:"0〜8が晴れ、9〜10がくもりだよ。"},
+{f:"geo",lv:2,q:"百葉箱《ひゃくようばこ》のとびらは、どの方角を向《む》いている？",a:["北","南","東","西"],e:"とびらを開《あ》けたとき、日光が中に入らないように、北向《きたむ》きになっているよ。"},
+{f:"geo",lv:2,q:"月が光って見えるのはなぜ？",a:["太陽《たいよう》の光をはね返《かえ》しているから","月がもえているから","月に電気がついているから","星の光を集《あつ》めているから"],e:"月は自分では光らない。だから、太陽《たいよう》との位置《いち》で形が変《か》わって見えるんだ。"},
+/* ── 力・光・電気 きほん ── */
+{f:"phy",lv:1,q:"じしゃくにつくのはどれ？",a:["鉄《てつ》のくぎ","アルミかん","10円玉","消《け》しゴム"],e:"じしゃくにつくのは鉄《てつ》。アルミや10円玉（どう）はつかないよ。"},
+{f:"phy",lv:1,q:"じしゃくのN極《きょく》とN極《きょく》を近づけると？",a:["しりぞけ合う","引き合う","何も起《お》きない","くっついてはなれない"],e:"同じ極《きょく》どうしはしりぞけ合い、ちがう極《きょく》どうしは引き合うよ。"},
+{f:"phy",lv:1,q:"じしゃくのN極《きょく》とS極《きょく》を近づけると？",a:["引き合う","しりぞけ合う","何も起《お》きない","熱《あつ》くなる"],e:"ちがう極《きょく》どうしは引き合うよ。"},
+{f:"phy",lv:1,q:"じしゃくが鉄《てつ》を引きつける力がいちばん強いのは？",a:["両《りょう》はしの極《きょく》","まん中","どこも同じ","まわりの空気"],e:"両《りょう》はしの「極《きょく》」がいちばん強いよ。"},
+{f:"phy",lv:1,q:"方位《ほうい》じしんのはりのN極《きょく》が指《さ》す方角は？",a:["北","南","東","西"],e:"じしゃくのはりは、いつも北と南を指《さ》して止まるよ。"},
+{f:"phy",lv:1,q:"電気を通すのはどれ？",a:["アルミはく","紙","ガラス","プラスチック"],e:"電気を通すのは金ぞく。紙やガラスやプラスチックは通さないよ。"},
+{f:"phy",lv:1,q:"豆電球《まめでんきゅう》に明かりがつくのは、どんなとき？",a:["電池と豆電球《まめでんきゅう》が、わのように1つにつながったとき","どう線のとちゅうが切れているとき","どう線のかた方だけつないだとき","電池からはなしているとき"],e:"電気の通り道が1つのわになっているものを「回路《かいろ》」というよ。"},
+{f:"phy",lv:1,q:"鏡《かがみ》ではね返《かえ》した日光は、どう進《すす》む？",a:["まっすぐ進《すす》む","ぐにゃぐにゃ曲《ま》がる","丸く広がる","すぐ消《き》える"],e:"光はまっすぐ進《すす》むよ。"},
+{f:"phy",lv:1,q:"はね返《かえ》した日光をたくさん重《かさ》ねると？",a:["明るく、温《あたた》かくなる","暗《くら》く、冷《つめ》たくなる","色が黒くなる","何も変《か》わらない"],e:"重《かさ》ねるほど、明るく温《あたた》かくなるよ。"},
+{f:"phy",lv:1,q:"虫めがねで日光を集《あつ》め、光の点を小さくすると？",a:["明るく、熱《あつ》くなる","暗《くら》く、冷《つめ》たくなる","大きく広がる","色が青くなる"],e:"とても熱《あつ》くなるので、目で見たり人に当てたりしてはいけないよ。"},
+{f:"phy",lv:1,q:"音が出ているものは、どうなっている？",a:["ふるえている","止まっている","とけている","光っている"],e:"たいこやトライアングルをさわると、ふるえているのがわかるよ。"},
+{f:"phy",lv:1,q:"糸電話で話しているとき、糸を指《ゆび》でつまむと？",a:["声が聞こえなくなる","声が大きくなる","声が高くなる","何も変《か》わらない"],e:"糸のふるえが止まって、音が伝《つた》わらなくなるよ。"},
+{f:"phy",lv:1,q:"風で動《うご》く車。風を強くすると？",a:["遠くまで進《すす》む","進《すす》むきょりが短《みじか》くなる","後ろに進《すす》む","止まる"],e:"風が強いほど、ものを動《うご》かす力が大きいよ。"},
+{f:"phy",lv:1,q:"ゴムで動《うご》く車。ゴムを長くのばすと？",a:["遠くまで進《すす》む","近くで止まる","動《うご》かない","後ろに進《すす》む"],e:"長くのばすほど、ゴムが元にもどろうとする力が大きいよ。"},
+{f:"phy",lv:1,q:"ねん土の形を、丸から平《たい》らに変《か》えると、重《おも》さは？",a:["変《か》わらない","重《おも》くなる","軽《かる》くなる","なくなる"],e:"形を変《か》えても、いくつかに分けても、全部《ぜんぶ》合わせた重《おも》さは変《か》わらないよ。"},
+{f:"phy",lv:1,q:"同じ大きさの鉄《てつ》と木。重《おも》いのはどっち？",a:["鉄《てつ》","木","同じ","日によってちがう"],e:"同じ大きさでも、ものの種類《しゅるい》によって重《おも》さはちがうよ。"},
+{f:"phy",lv:1,q:"かん電池2こを直列《ちょくれつ》につなぐと、モーターの回り方は？",a:["1このときより速《はや》くなる","1このときよりおそくなる","止まる","変《か》わらない"],e:"直列《ちょくれつ》つなぎにすると、電流《でんりゅう》が強くなるよ。"},
+{f:"phy",lv:1,q:"かん電池の向《む》きを反対《はんたい》にすると、モーターは？",a:["反対《はんたい》に回る","止まる","速《はや》くなる","同じ向《む》きに回る"],e:"電流《でんりゅう》の向《む》きが変《か》わると、モーターの回る向《む》きも変《か》わるよ。"},
+/* ── 力・光・電気 チャレンジ ── */
+{f:"phy",lv:2,q:"鏡《かがみ》などで光がはね返《かえ》ることを何という？",a:["反射《はんしゃ》","くっせつ","じょう発《はつ》","ふっとう"],e:"光がおれ曲《ま》がって進《すす》むことは「くっせつ」というよ。"},
+{f:"phy",lv:2,q:"空気の中を音が進《すす》む速《はや》さは、1秒《びょう》間に約《やく》何m？",a:["340m","34m","3400m","30万km"],e:"30万kmは光の速《はや》さ。光は音よりずっと速《はや》いよ。"},
+{f:"phy",lv:2,q:"いなずまが光ってから3秒《びょう》後に音が聞こえた。かみなりまでのきょりはどれくらい？",a:["約《やく》1km","約《やく》100m","約《やく》3km","約《やく》10km"],e:"340m×3秒《びょう》＝1020m。だから約《やく》1kmだよ。"},
+{f:"phy",lv:2,q:"音が伝《つた》わらないのはどこ？",a:["空気のないうちゅう","水の中","鉄《てつ》の中","木の中"],e:"音は水や金ぞくも伝《つた》わるけど、何もないところは伝《つた》わらないよ。"},
+{f:"phy",lv:2,q:"かん電池2こを並列《へいれつ》につなぐと、豆電球《まめでんきゅう》の明るさは、1このときとくらべて？",a:["ほぼ同じ","2倍《ばい》明るい","暗《くら》くなる","つかない"],e:"明るさはほぼ同じで、そのぶん長持《ながも》ちするよ。"},
+{f:"phy",lv:2,q:"豆電球《まめでんきゅう》2こを直列《ちょくれつ》につなぐと、1こだけのときとくらべて明るさは？",a:["暗《くら》くなる","明るくなる","同じ","つかない"],e:"豆電球《まめでんきゅう》を直列《ちょくれつ》にふやすと、電流《でんりゅう》が弱くなって暗《くら》くなるよ。"},
+{f:"phy",lv:2,q:"ぼうじしゃくを、まん中で2つに切ると？",a:["どちらにもN極《きょく》とS極《きょく》ができる","N極《きょく》だけとS極《きょく》だけになる","じしゃくでなくなる","まん中だけがじしゃくになる"],e:"どんなに小さく切っても、N極《きょく》とS極《きょく》がセットでできるよ。"},
+{f:"phy",lv:2,q:"地球《ちきゅう》も大きなじしゃく。北極《ほっきょく》のあたりは何極《なんきょく》？",a:["S極《きょく》","N極《きょく》","極《きょく》はない","N極《きょく》とS極《きょく》の両方《りょうほう》"],e:"方位《ほうい》じしんのN極《きょく》が北を指《さ》すのは、北にS極《きょく》があって引き合うからだよ。"},
+{f:"phy",lv:2,q:"鉄《てつ》のくぎを、じしゃくで同じ向《む》きに何回もこすると？",a:["くぎがじしゃくになる","くぎがとける","くぎが軽《かる》くなる","何も変《か》わらない"],e:"鉄《てつ》はじしゃくにふれると、じしゃくのせいしつをもつようになるよ。"},
+{f:"phy",lv:2,q:"かん電池の＋極《きょく》と−極《きょく》を、どう線だけで直《ちょく》せつつなぐと？",a:["電池が熱《あつ》くなってきけん","豆電球《まめでんきゅう》がすごく明るくなる","電池が長持《ながも》ちする","何も起《お》きない"],e:"「ショート回路《かいろ》」というよ。ぜったいにやってはいけないよ。"},
+{f:"phy",lv:2,q:"色がぬってある空きかんに、電気が通らないのはなぜ？",a:["ぬってあるものが電気を通さないから","かんの金ぞくが電気を通さないから","かんが空っぽだから","かんが冷《つめ》たいから"],e:"紙やすりでけずって金ぞくを出すと、電気が通るよ。"},
+{f:"phy",lv:2,q:"1kgは何g？",a:["1000g","100g","10g","10000g"],e:"kの「キロ」は1000倍《ばい》という意味《いみ》だよ。"},
+{f:"phy",lv:2,q:"電流《でんりゅう》の向《む》きと強さを調《しら》べる道具《どうぐ》は？",a:["検流計《けんりゅうけい》","温度計《おんどけい》","方位《ほうい》じしん","てんびん"],e:"はりのふれる向《む》きで電流《でんりゅう》の向《む》き、ふれはばで強さがわかるよ。"},
+/* ── もののせいしつ きほん ── */
+{f:"chem",lv:1,q:"注射器《ちゅうしゃき》にとじこめた空気をおすと、空気の体積《たいせき》は？",a:["小さくなる","大きくなる","変《か》わらない","なくなる"],e:"おしちぢめるほど、おし返《かえ》す力が大きくなるよ。"},
+{f:"chem",lv:1,q:"注射器《ちゅうしゃき》にとじこめた水をおすと、水の体積《たいせき》は？",a:["変《か》わらない","小さくなる","大きくなる","半分になる"],e:"空気はおしちぢめられるけど、水はおしちぢめられないよ。"},
+{f:"chem",lv:1,q:"空気を温《あたた》めると、体積《たいせき》はどうなる？",a:["大きくなる","小さくなる","変《か》わらない","なくなる"],e:"温《あたた》めると大きく、冷《ひ》やすと小さくなるよ。"},
+{f:"chem",lv:1,q:"へこんだピンポン玉を元にもどすには？",a:["お湯《ゆ》につける","氷水《こおりみず》につける","れいとうこに入れる","強くにぎる"],e:"中の空気が温《あたた》められて体積《たいせき》がふえ、内側《うちがわ》からおし出すよ。"},
+{f:"chem",lv:1,q:"水がふっとうするのは、約《やく》何度《なんど》？",a:["100度《ど》","50度《ど》","0度《ど》","200度《ど》"],e:"ふっとうすると、中からあわがさかんに出てくるよ。"},
+{f:"chem",lv:1,q:"水がこおって氷《こおり》になるのは何度《なんど》？",a:["0度《ど》","100度《ど》","10度《ど》","マイナス50度《ど》"],e:"0度《ど》でこおり始《はじ》めるよ。"},
+{f:"chem",lv:1,q:"水がこおって氷《こおり》になると、体積《たいせき》は？",a:["大きくなる","小さくなる","変《か》わらない","半分になる"],e:"だから、水を入れたペットボトルをこおらせると、ふくらむことがあるよ。"},
+{f:"chem",lv:1,q:"ふっとうした水から出てくる大きなあわの正体《しょうたい》は？",a:["水じょう気","空気","けむり","さんそ"],e:"水がすがたを変《か》えた水じょう気。目には見えない気体《きたい》だよ。"},
+{f:"chem",lv:1,q:"水たまりの水が、ふっとうしなくても空気中へ出ていくことを何という？",a:["じょう発《はつ》","ふっとう","とける","こおる"],e:"水はふだんから少しずつ水じょう気になって出ていくよ。せんたく物《もの》がかわくのもこれ。"},
+{f:"chem",lv:1,q:"冷《つめ》たい水を入れたコップの外側《そとがわ》に、水てきがつくのはなぜ？",a:["空気中の水じょう気が冷《ひ》やされて、水になったから","コップから水がしみ出したから","雨がふったから","コップがあせをかいたから"],e:"空気の中には、目に見えない水じょう気がふくまれているよ。"},
+{f:"chem",lv:1,q:"金ぞくのぼうのはしを温《あたた》めると、熱《ねつ》はどう伝《つた》わる？",a:["温《あたた》めたところから順《じゅん》に広がる","ぼう全体《ぜんたい》が同時に熱《あつ》くなる","反対《はんたい》のはしから熱《あつ》くなる","伝《つた》わらない"],e:"温《あたた》めたところから、順番《じゅんばん》に伝《つた》わっていくよ。"},
+{f:"chem",lv:1,q:"ビーカーの水を下から温《あたた》めると？",a:["温《あたた》められた水が上に動《うご》き、全体《ぜんたい》が温《あたた》まる","下だけがずっと熱《あつ》い","上だけ冷《つめ》たくなる","水は動《うご》かない"],e:"温《あたた》かい水は上へ、冷《つめ》たい水は下へ動《うご》いて、ぐるぐる回るよ。"},
+{f:"chem",lv:1,q:"だんぼうをつけた部屋《へや》。温《あたた》かい空気はどこにたまる？",a:["上のほう","下のほう","まどのそば","たまらない"],e:"温《あたた》かい空気は上へ行くので、足元《あしもと》が寒《さむ》くなりやすいよ。"},
+{f:"chem",lv:1,q:"氷《こおり》・水・水じょう気のうち、「気体《きたい》」はどれ？",a:["水じょう気","氷《こおり》","水","全部《ぜんぶ》"],e:"氷《こおり》は「固体《こたい》」、水は「液体《えきたい》」、水じょう気は「気体《きたい》」だよ。"},
+{f:"chem",lv:1,q:"アルコールランプの火を消《け》すときは？",a:["ふたをななめ上からかぶせる","息《いき》でふき消《け》す","水をかける","ふって消《け》す"],e:"ふたをかぶせると、空気がなくなって火が消《き》えるよ。"},
+{f:"chem",lv:1,q:"金ぞくを温《あたた》めると、体積《たいせき》はどうなる？",a:["少し大きくなる","小さくなる","変《か》わらない","すぐとける"],e:"金ぞくも、空気や水と同じように、温《あたた》めると体積《たいせき》がふえるよ。ふえ方はとても小さいけどね。"},
+/* ── もののせいしつ チャレンジ ── */
+{f:"chem",lv:2,q:"やかんの口から出る白い「湯気《ゆげ》」の正体《しょうたい》は？",a:["小さな水のつぶ","水じょう気","けむり","空気"],e:"水じょう気は目に見えない。冷《ひ》えて小さな水のつぶになると、白く見えるよ。"},
+{f:"chem",lv:2,q:"水が氷《こおり》になると、体積《たいせき》は約《やく》どれくらいになる？",a:["約《やく》1.1倍《ばい》","約《やく》2倍《ばい》","約《やく》半分","変《か》わらない"],e:"約《やく》1.1倍《ばい》にふえるよ。だから氷《こおり》は水にうくんだ。"},
+{f:"chem",lv:2,q:"温《あたた》められた水や空気が動《うご》いて、全体《ぜんたい》が温《あたた》まる伝《つた》わり方は？",a:["対流《たいりゅう》","伝導《でんどう》","放射《ほうしゃ》","反射《はんしゃ》"],e:"金ぞくのように順《じゅん》に伝《つた》わるのは「伝導《でんどう》」だよ。"},
+{f:"chem",lv:2,q:"たき火や太陽《たいよう》の熱《ねつ》が、はなれていても直《ちょく》せつ伝《つた》わる伝《つた》わり方は？",a:["放射《ほうしゃ》","対流《たいりゅう》","伝導《でんどう》","じょう発《はつ》"],e:"太陽《たいよう》の熱《ねつ》は、何もないうちゅうをこえて、放射《ほうしゃ》でとどくよ。"},
+{f:"chem",lv:2,q:"いちばん熱《ねつ》を伝《つた》えやすいのはどれ？",a:["どう","鉄《てつ》","ガラス","木"],e:"金ぞくの中でも、どう（10円玉の金ぞく）はとても熱《ねつ》を伝《つた》えやすいよ。"},
+{f:"chem",lv:2,q:"氷《こおり》がとけている間、温度《おんど》はどうなる？",a:["0度《ど》のまま変《か》わらない","どんどん上がる","どんどん下がる","100度《ど》になる"],e:"全部《ぜんぶ》とけきるまで0度《ど》のまま。とけ終《お》わると、また上がり始《はじ》めるよ。"},
+{f:"chem",lv:2,q:"水がふっとうしている間、温度《おんど》はどうなる？",a:["約《やく》100度《ど》のまま変《か》わらない","どんどん上がる","下がっていく","0度《ど》になる"],e:"温《あたた》め続《つづ》けても、ふっとう中は約《やく》100度《ど》で止まるよ。"},
+{f:"chem",lv:2,q:"同じだけ温《あたた》めたとき、体積《たいせき》がいちばん大きく変《か》わるのは？",a:["空気","水","鉄《てつ》","どれも同じ"],e:"体積《たいせき》の変《か》わり方は、空気＞水＞金ぞくの順《じゅん》だよ。"},
+{f:"chem",lv:2,q:"鉄道《てつどう》のレールのつなぎ目に、すき間があるのはなぜ？",a:["夏の暑《あつ》さでレールがのびるから","音を出すため","雨水を流《なが》すため","じょうぶにするため"],e:"金ぞくは温《あたた》まるとのびる。すき間がないと、夏にレールが曲《ま》がってしまうよ。"},
+{f:"chem",lv:2,q:"冬の朝、まどガラスの内側《うちがわ》がくもるのはなぜ？",a:["部屋《へや》の水じょう気が冷《ひ》えて水てきになるから","外の雨がしみこむから","ガラスがとけるから","ほこりがつくから"],e:"コップの外側《そとがわ》に水てきがつくのと、同じ仕組《しく》みだよ。"},
+{f:"chem",lv:2,q:"水をふっとうさせるとき、入れておく「ふっとう石」の役目《やくめ》は？",a:["急《きゅう》にはげしくふっとうするのをふせぐ","水を早く冷《ひ》やす","水に色をつける","においを消《け》す"],e:"ふっとう石がないと、とつぜんはげしくふっとうして、お湯《ゆ》が飛《と》び出すことがあるよ。"}
+];
+
+/* ── 道ぐ ── */
+const $ = id => document.getElementById(id);
+const ruby = s => s.replace(/([\u4E00-\u9FFF々]+)《([^》]+)》/g,'<ruby>$1<rt>$2</rt></ruby>');
+const shuffle = arr => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const N = 10;
+
+let pickField = "all", pickLv = 1;
+let set = [], idx = 0, score = 0, missed = [], answered = false;
+
+/* HTMLの中の 漢字《かな》も ふりがなにする */
+document.querySelectorAll(".lead,h2,.lv,.next,.btns button").forEach(el=>{el.innerHTML=ruby(el.innerHTML)});
+
+/* ふりがな あり・なし */
+const rubyBtn=$("rubyToggle");
+function setRuby(on){
+  document.body.classList.toggle("noruby",!on);
+  rubyBtn.textContent=on?"ふりがな：あり":"ふりがな：なし";
+  rubyBtn.setAttribute("aria-pressed",on?"true":"false");
+  try{localStorage.setItem("rika-ruby",on?"1":"0")}catch(e){}
+}
+let rubyOn=true; try{rubyOn=localStorage.getItem("rika-ruby")!=="0"}catch(e){}
+setRuby(rubyOn);
+rubyBtn.addEventListener("click",()=>setRuby(document.body.classList.contains("noruby")));
+
+/* 仲間ボタンを作る */
+const fieldsEl = $("fields");
+Object.entries(FIELDS).forEach(([key,f])=>{
+  const b=document.createElement("button");
+  b.className="field"; b.dataset.f=key; b.style.setProperty("--c",f.c);
+  b.setAttribute("aria-pressed","false");
+  b.innerHTML=`<span class="emoji">${f.emoji}</span><span class="name">${ruby(f.name)}</span><span class="sub">${ruby(f.sub)}</span>`;
+  fieldsEl.appendChild(b);
+});
+const allBtn=document.createElement("button");
+allBtn.className="field all"; allBtn.dataset.f="all"; allBtn.style.setProperty("--c","var(--mix)");
+allBtn.setAttribute("aria-pressed","true");
+allBtn.innerHTML=`<span class="emoji">🎲</span><span><span class="name">${ruby("全部《ぜんぶ》まぜる")}</span><span class="sub">${ruby("4つの仲間《なかま》からランダムに出るよ")}</span></span>`;
+fieldsEl.appendChild(allBtn);
+
+fieldsEl.addEventListener("click",e=>{
+  const b=e.target.closest(".field"); if(!b) return;
+  pickField=b.dataset.f;
+  fieldsEl.querySelectorAll(".field").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+});
+$("levels").addEventListener("click",e=>{
+  const b=e.target.closest(".lv"); if(!b) return;
+  pickLv=Number(b.dataset.lv);
+  $("levels").querySelectorAll(".lv").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+});
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));
+  window.scrollTo(0,0);
+}
+
+function start(){
+  let pool=Q.filter(q=>(pickField==="all"||q.f===pickField)&&(pickLv===0||q.lv===pickLv));
+  set=shuffle(pool).slice(0,N);
+  idx=0; score=0; missed=[];
+  $("dots").innerHTML=set.map(()=>'<span class="dot"></span>').join("");
+  show("quiz"); render();
+}
+
+function render(){
+  answered=false;
+  const q=set[idx], f=FIELDS[q.f];
+  $("card").style.setProperty("--c",f.c);
+  $("tag").style.setProperty("--c",f.c);
+  $("tag").innerHTML=ruby(f.emoji+" "+f.name);
+  $("tag2").style.display=q.lv===2?"inline-block":"none";
+  $("qnum").innerHTML=ruby(`第《だい》${idx+1}問《もん》（全部《ぜんぶ》で${set.length}問《もん》）`);
+  $("qtext").innerHTML=ruby(q.q);
+  $("stamp").classList.remove("on"); $("stamp").innerHTML="";
+  $("memo").classList.remove("on"); $("next").classList.remove("on");
+  document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("now",i===idx));
+  const opts=shuffle(q.a.map((t,i)=>({t,ok:i===0})));
+  $("choices").innerHTML="";
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.className="ch"; b.innerHTML=ruby(o.t); b.dataset.ok=o.ok?"1":"0";
+    b.addEventListener("click",()=>answer(b));
+    $("choices").appendChild(b);
+  });
+}
+
+function answer(btn){
+  if(answered) return; answered=true;
+  const q=set[idx], ok=btn.dataset.ok==="1";
+  const btns=[...document.querySelectorAll(".ch")];
+  btns.forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.ok==="1") b.classList.add("right");
+    else if(b===btn) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  const dot=document.querySelectorAll(".dot")[idx];
+  dot.classList.add(ok?"ok":"ng");
+  if(ok) score++; else missed.push(q);
+  const st=$("stamp");
+  st.innerHTML= ok
+    ? '<path d="M60 12 A48 48 0 1 1 59.9 12"/>'
+    : '<path d="M22 22 L98 98"/><path d="M98 22 L22 98"/>';
+  st.classList.add("on");
+  $("memo").innerHTML=`<b>${ok?"正かい！":ruby("残念《ざんねん》！ 答えは「")+ruby(q.a[0])+"」"}</b>${ruby(q.e)}`;
+  $("memo").classList.add("on");
+  $("next").innerHTML= ruby(idx===set.length-1 ? "結果《けっか》を見る" : "次《つぎ》へ");
+  $("next").classList.add("on");
+  $("next").focus({preventScroll:true});
+  $("next").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function next(){
+  idx++;
+  if(idx<set.length){ render(); window.scrollTo({top:0,behavior:"smooth"}); }
+  else finish();
+}
+
+function finish(){
+  const total=set.length, rate=score/total;
+  $("score").innerHTML=ruby(`${score}<small> / ${total}問《もん》正かい</small>`);
+  $("comment").innerHTML = ruby(
+    rate===1 ? "全問《ぜんもん》正かい！ 理科はかせだ！" :
+    rate>=.8 ? "すごい！ あと少しで全問《ぜんもん》正かい！" :
+    rate>=.5 ? "いいね！ まちがえた問題《もんだい》を見直そう。" :
+               "まちがえた問題《もんだい》を読んで、もう一度《いちど》ちょうせん！");
+  $("hanamaru").innerHTML = rate>=.8
+    ? '<path d="M100 30 C150 30 172 70 160 110 C148 152 92 166 62 140 C34 116 46 70 86 66 C122 62 136 96 118 116 C102 134 78 120 84 102"/><path d="M60 40 C40 20 20 40 36 58 M140 40 C160 20 180 40 164 58 M36 150 C16 170 36 186 56 166 M164 150 C184 170 164 186 144 166"/>'
+    : "";
+  $("hanamaru").style.display = rate>=.8 ? "block" : "none";
+  const rv=$("review");
+  if(missed.length){
+    rv.innerHTML=ruby("<h2>まちがえた問題《もんだい》</h2>")+missed.map(q=>
+      `<div class="rv">${ruby(q.q)}<br>答え：<span class="a">${ruby(q.a[0])}</span></div>`).join("");
+  } else rv.innerHTML="";
+  show("result");
+}
+
+$("start").addEventListener("click",start);
+$("next").addEventListener("click",next);
+$("again").addEventListener("click",start);
+$("back").addEventListener("click",()=>show("home"));
+$("quit").addEventListener("click",()=>show("home"));
+</script>
+</body>
+</html>
