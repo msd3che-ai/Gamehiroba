@@ -66,6 +66,7 @@ h2{font-size:24px;font-weight:800;margin:0 0 12px;display:flex;align-items:cente
 }
 .game:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
 .game:focus-visible{outline:4px solid var(--berry);outline-offset:3px}
+.icon{font-size:76px;line-height:110px;height:110px}
 .badge{font-size:16px;font-weight:800;color:#fff;padding:3px 14px;border-radius:999px}
 .game b{font-size:21px;line-height:1.35}
 .game small{font-size:16px;color:var(--sub);line-height:1.5}
@@ -85,11 +86,13 @@ h2{font-size:24px;font-weight:800;margin:0 0 12px;display:flex;align-items:cente
 
 <script>
 // ===== ゲームを ふやすときは、ここに 1行 たすだけ =====
-// genre: ジャンル名 / file: ファイル名 / title: なまえ / badge: ラベル / color: ラベルのいろ / note: せつめい / cake: [わけるかず, 🍓のかず]
+// genre: ジャンル名 / file: ファイル名 / title: なまえ / badge: ラベル / color: ラベルのいろ / note: せつめい
+// cake: [わけるかず, 🍓のかず]（ケーキの絵）  または  icon: えもじ（大きな絵文字）
 const GAMES = [
   {genre:'🍰 さんすう', file:'fraction1.html', title:'ケーキを なかよく わけよう！', badge:'レベル1', color:'#2fae6b', note:'2・3・4・8人で わけるよ', cake:[4,1]},
   {genre:'🍰 さんすう', file:'fraction2.html', title:'ケーキを なかよく わけよう！', badge:'レベル2', color:'#5b7cfa', note:'12人まで わけるよ',       cake:[12,1]},
   {genre:'🍰 さんすう', file:'fraction3.html', title:'ケーキを なかよく わけよう！', badge:'レベル3', color:'#8a5cf0', note:'🍓を 2こ・3こ のせるよ',   cake:[5,3]},
+  {genre:'🗾 しゃかい', file:'todofuken-namae.html', title:'とどうふけん なまえクイズ', badge:'その1', color:'#e04a3a', note:'ヒント・よみかた・ちほうで あてよう', icon:'🗾'},
 ];
 // ===================================================
 
@@ -103,11 +106,17 @@ function cake(n,m,size=110){
   return s+'</svg>';
 }
 
+function pic(g){
+  if(g.cake) return cake(...g.cake);
+  if(g.icon) return `<span class="icon" aria-hidden="true">${g.icon}</span>`;
+  return '';
+}
+
 const genres=[...new Set(GAMES.map(g=>g.genre))];
 document.getElementById('list').innerHTML=genres.map(gen=>
   `<section><h2>${gen}</h2><div class="grid">`+
   GAMES.filter(g=>g.genre===gen).map(g=>
-    `<a class="game" href="./${g.file}">${g.cake?cake(...g.cake):''}<span class="badge" style="background:${g.color}">${g.badge}</span><b>${g.title}</b><small>${g.note}</small></a>`
+    `<a class="game" href="./${g.file}">${pic(g)}<span class="badge" style="background:${g.color}">${g.badge}</span><b>${g.title}</b><small>${g.note}</small></a>`
   ).join('')+
   `</div></section>`
 ).join('')+`<div class="grid"><div class="soon">🎁 あたらしい ゲーム<br>もうすぐ ふえるよ！</div></div>`;
