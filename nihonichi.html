@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>にほんいちは どこ？</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAF4EE;--card:#FFFFFF;--ink:#1F3A5F;--sub:#5B6B80;--shu:#E04A3A;--shu-d:#A9302A;--sun:#F6C343;--leaf:#2F8F62;--leaf-d:#1E6646;--onleaf:#FFFFFF;--line:#C9DCD0;--soft:#F3F9F5;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#14211B;--card:#1D2E26;--ink:#E8F0EC;--sub:#A9BDB2;--shu:#FF6B5B;--shu-d:#B23A2E;--leaf:#5CC795;--leaf-d:#2F7A57;--onleaf:#10231A;--line:#33503F;--soft:#22362D;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.wrap{max-width:760px;margin:0 auto;padding:20px 18px 40px}
+[hidden]{display:none!important}
+rt{font-size:.5em;font-weight:500}
+.nofuri rt{display:none}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:4px solid var(--sun);outline-offset:3px}
+.title{text-align:center;padding:8px 0}
+.title-stamps{display:flex;justify-content:center;gap:12px;margin-bottom:6px}
+.stamp{width:62px;height:62px;border-radius:50%;border:3px solid var(--shu);display:grid;place-items:center;font-size:30px;background:var(--card);transform:rotate(-8deg)}
+.stamp:nth-child(2){transform:rotate(6deg) translateY(6px)}
+h1{font-weight:900;font-size:clamp(32px,6.5vw,52px);line-height:1.3;margin:8px 0 0;letter-spacing:.03em}
+h2{font-size:20px;margin:26px 0 10px;font-weight:700}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.mode{border:3px solid var(--line);background:var(--card);border-radius:18px;padding:14px 10px;color:var(--ink);text-align:center}
+.mode .me{font-size:34px;display:block;line-height:1.3}
+.mode b{display:block;font-size:20px;font-weight:900}
+.mode small{display:block;font-size:14px;color:var(--sub);margin-top:4px;line-height:1.5}
+.mode[aria-pressed="true"]{border-color:var(--ink);background:var(--soft);box-shadow:0 4px 0 var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-weight:700;font-size:18px;padding:10px 16px;border-radius:999px;border:2px solid var(--line);background:var(--card);color:var(--ink);line-height:1.7}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.note{color:var(--sub);font-size:15px;margin:10px 0 0}
+.err{color:var(--shu);font-weight:700;text-align:center;margin:14px 0 0;line-height:1.6}
+.big{display:block;width:100%;font-weight:900;font-size:24px;padding:18px;border:0;border-radius:18px;background:var(--shu);color:#fff;box-shadow:0 5px 0 var(--shu-d);margin-top:26px}
+.big:active{transform:translateY(3px);box-shadow:0 2px 0 var(--shu-d)}
+.big:disabled{opacity:.6}
+.big.alt{background:var(--card);color:var(--ink);border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink)}
+.opts{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.toggle{font-size:16px;padding:8px 16px;border-radius:999px;border:2px solid var(--line);background:transparent;color:var(--sub)}
+.toggle[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+.back{display:block;text-align:center;margin-top:18px;color:var(--sub);font-size:15px}
+.topbar{display:flex;justify-content:space-between;align-items:center}
+.ghost{border:2px solid var(--line);background:transparent;color:var(--sub);border-radius:999px;padding:6px 14px;font-size:15px}
+#count{font-weight:900;font-size:20px}
+.sheet{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0}
+.slot{width:42px;height:42px;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center;font-size:20px}
+.slot.got{border:3px solid var(--shu);background:var(--card);transform:rotate(-8deg)}
+.slot.lost{border:2px solid var(--line);opacity:.4;filter:grayscale(1)}
+.slot.anim.got{animation:stamp .45s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes stamp{0%{transform:scale(2.4) rotate(-25deg);opacity:0}100%{transform:scale(1) rotate(-8deg);opacity:1}}
+.qcard{position:relative;background:var(--card);border-radius:24px;padding:20px;text-align:center;border:3px solid var(--line)}
+.qemoji{font-size:64px;line-height:1.15}
+.qprompt{color:var(--sub);font-size:17px;margin:4px 0 6px}
+.qtext{font-size:24px;line-height:1.7;font-weight:700;max-width:30em;margin:0 auto}
+.bigname{font-size:42px;font-weight:900;line-height:1.6}
+.sil{width:min(240px,60vw);height:auto;display:block;margin:0 auto}
+.hintbtn{margin-top:8px;border:2px solid var(--line);background:var(--soft);color:var(--ink);border-radius:999px;padding:6px 18px;font-size:16px;font-weight:700}
+.hintbox{margin-top:8px}
+.mapsvg{width:min(220px,55vw);height:auto;display:block;margin:0 auto}
+.hintbox p{margin:4px 0 0;color:var(--sub);font-size:15px}
+.bigstamp{position:absolute;top:10px;right:12px;width:96px;height:96px;border-radius:50%;border:4px solid var(--shu);color:var(--shu);display:none;flex-direction:column;align-items:center;justify-content:center;font-weight:900;background:var(--card);transform:rotate(-12deg);pointer-events:none}
+.bigstamp.on{display:flex;animation:stamp2 .5s cubic-bezier(.2,1.4,.4,1) both}
+.bigstamp span{font-size:38px;line-height:1.1}
+.bigstamp small{font-size:15px}
+@keyframes stamp2{0%{transform:scale(2.6) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(-12deg);opacity:1}}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.choices button{font-weight:900;font-size:24px;min-height:92px;border-radius:18px;border:3px solid var(--line);background:var(--card);color:var(--ink);box-shadow:0 4px 0 var(--line);padding:8px;line-height:1.5}
+.choices.small button{font-size:20px}
+.choices button:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.choices button.ok{border-color:var(--leaf);background:var(--leaf);color:var(--onleaf);box-shadow:0 4px 0 var(--leaf-d)}
+.choices button.ng{border-color:var(--shu);color:var(--shu)}
+.choices button:disabled{cursor:default}
+.choices button:disabled:not(.ok):not(.ng){opacity:.45}
+.feedback{text-align:center;margin-top:16px;font-size:21px;line-height:1.8;min-height:1.8em;font-weight:700}
+.okt{color:var(--leaf)}
+.ngt{color:var(--shu)}
+.fact{font-size:17px;color:var(--sub);margin:2px 0 0;font-weight:500}
+#next{margin-top:14px}
+.rtitle{font-size:clamp(28px,6vw,38px);font-weight:900;text-align:center;margin:10px 0 0}
+.rscore{text-align:center;font-size:22px;margin:4px 0;font-weight:700}
+.rscore b{font-size:60px;color:var(--shu);font-weight:900}
+.rbest{text-align:center;color:var(--sub);margin:0}
+.rsheet{gap:10px 6px;margin:20px 0}
+.rs{width:80px;text-align:center;font-size:13px;line-height:1.4}
+.rs .slot{width:62px;height:62px;font-size:30px;margin:0 auto 4px}
+.rs .slot.got{animation:stamp .45s cubic-bezier(.2,1.4,.4,1) both;animation-delay:var(--d)}
+.miss{list-style:none;padding:0;margin:0}
+.miss li{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px 14px;margin-bottom:8px}
+.miss .me{font-size:34px}
+.miss b{font-size:20px;font-weight:900}
+.miss small{display:block;color:var(--sub);font-size:15px;line-height:1.6}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section id="menu">
+  <header class="title">
+    <div class="title-stamps" id="tstamps" aria-hidden="true"></div>
+    <h1 id="ttl"></h1>
+  </header>
+  <h2>あそびかた</h2>
+  <div class="modes" id="modes"></div>
+  <div id="scopeSec">
+    <h2>どこから でる？</h2>
+    <div class="chips" id="chips"></div>
+  </div>
+  <p class="note" id="note" hidden></p>
+  <button class="big" id="start">はじめる</button>
+  <p class="err" id="err" hidden>ちずが よみこめなかったよ。<br>インターネットに つないで、もういちど おしてね。</p>
+  <div class="opts">
+    <button class="toggle" id="furiBtn"></button>
+    <button class="toggle" id="soundBtn"></button>
+  </div>
+  <a class="back" href="./">ゲームひろばに もどる</a>
+</section>
+
+<section id="quiz" hidden>
+  <div class="topbar"><button class="ghost" id="quit">やめる</button><div id="count"></div></div>
+  <div class="sheet" id="sheet" aria-hidden="true"></div>
+  <div class="qcard">
+    <div class="bigstamp" id="bigstamp"></div>
+    <div id="qvisual"></div>
+    <p class="qprompt" id="qprompt"></p>
+    <div class="qtext" id="qtext"></div>
+    <button class="hintbtn" id="hintBtn" hidden>💡 ヒントを みる</button>
+    <div class="hintbox" id="hintBox" hidden></div>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback" id="feedback" aria-live="polite"></div>
+  <button class="big" id="next" hidden></button>
+</section>
+
+<section id="result" hidden>
+  <h2 class="rtitle" id="rtitle"></h2>
+  <p class="rscore" id="rscore"></p>
+  <p class="rbest" id="rbest"></p>
+  <div class="sheet rsheet" id="rsheet"></div>
+  <div id="rmissWrap"><h2>もういちど みてみよう</h2><ul class="miss" id="rmiss"></ul></div>
+  <div class="row"><button class="big" id="again">もういちど</button><button class="big alt" id="tomenu">メニュー</button></div>
+</section>
+</main>
+<script>
+const REG=[["北海道・東北","ほっかいどう・とうほく"],["関東","かんとう"],["中部","ちゅうぶ"],["近畿","きんき"],["中国","ちゅうごく"],["四国","しこく"],["九州・沖縄","きゅうしゅう・おきなわ"]];
+// [なまえ, よみ, ちほう, えもじ, ひとこと]
+const P=[
+["北海道","ほっかいどう",0,"🐄","にほんで いちばん ひろい。じゃがいもや ぎゅうにゅうが たくさん とれるよ。"],
+["青森県","あおもりけん",0,"🍎","りんごが にほんで いちばん とれる。ねぶたまつりが ゆうめい。"],
+["岩手県","いわてけん",0,"🥢","わんこそばが ゆうめい。ひろさは にほんで 2ばんめ。"],
+["宮城県","みやぎけん",0,"🎋","たなばたまつりと ぎゅうタンが ゆうめいな「せんだい」が ある。"],
+["秋田県","あきたけん",0,"👹","なまはげが ゆうめい。おこめの「あきたこまち」。"],
+["山形県","やまがたけん",0,"🍒","さくらんぼが にほんで いちばん とれる。"],
+["福島県","ふくしまけん",0,"🍑","ももが ゆうめい。ひろさは にほんで 3ばんめ。"],
+["茨城県","いばらきけん",1,"🍈","メロンや なっとうが ゆうめい。"],
+["栃木県","とちぎけん",1,"🍓","いちごが ゆうめい。にっこうの とうしょうぐうが ある。"],
+["群馬県","ぐんまけん",1,"🍢","こんにゃくいもが にほんで いちばん。くさつおんせんも ある。"],
+["埼玉県","さいたまけん",1,"🚄","とうきょうの となり。てつどうはくぶつかんが ある。"],
+["千葉県","ちばけん",1,"🥜","らっかせいが にほんで いちばん。なりたくうこうが ある。"],
+["東京都","とうきょうと",1,"🗼","にほんの しゅと。ひとが いちばん おおい。"],
+["神奈川県","かながわけん",1,"⚓","よこはまの みなとや ちゅうかがいが ある。"],
+["新潟県","にいがたけん",2,"🍚","おこめの「コシヒカリ」。にほんで いちばん ながい しなのがわが ながれる。"],
+["富山県","とやまけん",2,"🦑","ホタルイカと くろべダムが ゆうめい。"],
+["石川県","いしかわけん",2,"✨","きんいろの うすい かみ「きんぱく」を つくっている。けんろくえんも ある。"],
+["福井県","ふくいけん",2,"🦕","きょうりゅうの かせきが たくさん みつかる。めがねづくりも さかん。"],
+["山梨県","やまなしけん",2,"🍇","ぶどうと ももが にほんで いちばん とれる。ふじさんの ふもと。"],
+["長野県","ながのけん",2,"🏔️","たかい やまが いっぱい。レタスや そばが ゆうめい。"],
+["岐阜県","ぎふけん",2,"🏡","しらかわごうの かやぶきやねの いえ。とりを つかって さかなを とる「うかい」。"],
+["静岡県","しずおかけん",2,"🍵","おちゃが ゆうめい。ふじさんが みえる。"],
+["愛知県","あいちけん",2,"🚗","くるまづくりが さかん。なごやじょうの きんの しゃちほこ。"],
+["三重県","みえけん",3,"🦪","しんじゅづくりと いせじんぐうが ゆうめい。"],
+["滋賀県","しがけん",3,"🛶","にほんで いちばん おおきな みずうみ「びわこ」が ある。"],
+["京都府","きょうとふ",3,"⛩️","むかしの みやこ。おてらや じんじゃが いっぱい。"],
+["大阪府","おおさかふ",3,"🐙","たこやきや おこのみやきが ゆうめい。"],
+["兵庫県","ひょうごけん",3,"🏯","まっしろな おしろ「ひめじじょう」と こうしえんきゅうじょう。"],
+["奈良県","ならけん",3,"🦌","しかが いっぱい。とうだいじの おおきな だいぶつ。"],
+["和歌山県","わかやまけん",3,"🍊","みかんと うめが にほんで いちばん とれる。"],
+["鳥取県","とっとりけん",4,"🐫","すなの おか「とっとりさきゅう」。ひとが にほんで いちばん すくない。"],
+["島根県","しまねけん",4,"🐚","えんむすびの いずもたいしゃ。しじみが ゆうめい。"],
+["岡山県","おかやまけん",4,"🍡","ももたろうの おはなしと きびだんご。マスカットも ゆうめい。"],
+["広島県","ひろしまけん",4,"🍁","うみに たつ とりいの いつくしまじんじゃ。かきと もみじまんじゅう。"],
+["山口県","やまぐちけん",4,"🐡","ふぐが ゆうめい。ほんしゅうの いちばん にしに ある。"],
+["徳島県","とくしまけん",5,"🌀","なるとの うずしおと あわおどり。"],
+["香川県","かがわけん",5,"🍜","「うどんけん」とも よばれる。ひろさは にほんで いちばん ちいさい。"],
+["愛媛県","えひめけん",5,"🧃","みかんが ゆうめい。いまばりタオルと どうごおんせん。"],
+["高知県","こうちけん",5,"🐟","かつおの たたき。きれいな かわ「しまんとがわ」。"],
+["福岡県","ふくおかけん",6,"🏙️","きゅうしゅうで いちばん ひとが おおい。めんたいこや とんこつラーメン。"],
+["佐賀県","さがけん",6,"🏺","ありたやきの やきもの。ありあけかいの のり。"],
+["長崎県","ながさきけん",6,"🏝️","しまの かずが にほんで いちばん おおい。カステラが ゆうめい。"],
+["熊本県","くまもとけん",6,"🐻","くまモンと おおきな かざん「あそさん」。"],
+["大分県","おおいたけん",6,"♨️","おんせんが にほんで いちばん おおい。べっぷや ゆふいん。"],
+["宮崎県","みやざきけん",6,"🥭","マンゴーや ピーマン。あたたかくて みなみの くにみたい。"],
+["鹿児島県","かごしまけん",6,"🌋","けむりを はく かざん「さくらじま」。さつまいもが ゆうめい。"],
+["沖縄県","おきなわけん",6,"🌺","あたたかい しまの けん。しゅりじょうと きれいな うみ。"]
+];
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const rb=(k,r)=>`<ruby>${k}<rt>${r}</rt></ruby>`;
+const pname=i=>rb(P[i][0],P[i][1]);
+const ALL=P.map((_,i)=>i);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// こたえ以外を n こ えらぶ（おなじ なまえは さける）。たりなければ fill から おぎなう
+function others(ans,cands,n,key,fill){
+  const seen=new Set([key(ans)]),out=[];
+  for(const list of [cands,fill||[]])for(const c of shuffle(list)){if(out.length>=n)break;const k=key(c);if(!seen.has(k)){seen.add(k);out.push(c)}}
+  return out;
+}
+const scopeChips=()=>[{id:"all",html:"ぜんこく"}].concat(REG.map((r,i)=>({id:String(i),html:rb(r[0],r[1])})));
+const byScope=(list,scope,prefOf)=>scope==="all"?list:list.filter(x=>P[prefOf(x)][2]===+scope);
+
+/* ===== ゲームごとの なかみ ===== */
+// [もんだいぶん, えもじ, けん, しゅるい(f=たべもの・もの / c=ちり)]
+const NI=[
+["じゃがいもが いちばん たくさん とれる","🥔",0,"f"],["たまねぎが いちばん たくさん とれる","🧅",0,"f"],["とうもろこしが いちばん たくさん とれる","🌽",0,"f"],["ぎゅうにゅうが いちばん たくさん とれる","🥛",0,"f"],
+["りんごが いちばん たくさん とれる","🍎",1,"f"],["さくらんぼが いちばん たくさん とれる","🍒",5,"f"],["メロンが いちばん たくさん とれる","🍈",7,"f"],["くりが いちばん たくさん とれる","🌰",7,"f"],
+["いちごが いちばん たくさん とれる","🍓",8,"f"],["こんにゃくいもが いちばん たくさん とれる","🍢",9,"f"],["らっかせいが いちばん たくさん とれる","🥜",11,"f"],["なしが いちばん たくさん とれる","🍐",11,"f"],
+["めがねの フレームを いちばん たくさん つくっている","👓",17,"f"],["ぶどうが いちばん たくさん とれる","🍇",18,"f"],["ももが いちばん たくさん とれる","🍑",18,"f"],["レタスが いちばん たくさん とれる","🥬",19,"f"],
+["じどうしゃを いちばん たくさん つくっている","🚗",22,"f"],["みかんが いちばん たくさん とれる","🍊",29,"f"],["うめが いちばん たくさん とれる","🍙",29,"f"],["かき（うみの かい）が いちばん たくさん とれる","🦪",33,"f"],
+["レモンが いちばん たくさん とれる","🍋",33,"f"],["すだちが いちばん たくさん とれる","🟢",35,"f"],["ゆずが いちばん たくさん とれる","🟡",38,"f"],["なすが いちばん たくさん とれる","🍆",38,"f"],
+["すいかが いちばん たくさん とれる","🍉",42,"f"],["トマトが いちばん たくさん とれる","🍅",42,"f"],["かぼすが いちばん たくさん とれる","🍈",43,"f"],["ほししいたけが いちばん たくさん とれる","🍄",43,"f"],
+["パイナップルが いちばん たくさん とれる","🍍",46,"f"],["さとうきびが いちばん たくさん とれる","🎋",46,"f"],["ゴーヤーが いちばん たくさん とれる","🥒",46,"f"],
+["ひろさが いちばん ひろい","🗺️",0,"c"],["いちばん きたに ある","⛄",0,"c"],["ひろさが いちばん せまい","📏",36,"c"],["ひとが いちばん おおい","🏙️",12,"c"],["ひとが いちばん すくない","🌾",30,"c"],
+["いちばん おおきな みずうみ（びわこ）が ある","🛶",24,"c"],["いちばん ふかい みずうみ（たざわこ）が ある","💧",4,"c"],["しまの かずが いちばん おおい","🏝️",41,"c"],["おんせんが いちばん おおい","♨️",43,"c"],["いちばん にしに ある","🧭",46,"c"]
+];
+const GAME={
+  id:"nihonichi",docTitle:"にほんいちは どこ？",
+  titleHtml:`${rb("日本一","にほんいち")}は<br>どこ？`,
+  stamps:["🥇","🍓","🗺️"],
+  modes:[
+    {id:"f",icon:"🍓",name:"たべもの・もの",desc:"いちばん たくさん とれる・つくる けん"},
+    {id:"c",icon:"🗺️",name:"ひろさ・ひと など",desc:"いちばん ひろい・ひとが おおい けん"},
+    {id:"all",icon:"🥇",name:"ぜんぶ",desc:"どっちも まぜて でるよ"}
+  ],
+  scopes:null,
+  pool:m=>m==="all"?NI.slice():NI.filter(x=>x[3]===m),
+  makeQ(t,mode,pool){
+    const famous=[...new Set(pool.map(x=>x[2]))];
+    const opts=shuffle([t[2],...others(t[2],famous,3,x=>x,ALL)]);
+    return{
+      emoji:t[1],prompt:"にほんいちは どこ？",
+      text:`${t[0]}のは どこ？`,
+      choices:opts.map(j=>({html:pname(j),ok:j===t[2]})),
+      answer:`${t[1]} ${pname(t[2])}`,fact:P[t[2]][4],stampEmoji:t[1],stampName:pname(t[2])
+    };
+  }
+};
+
+/* ============================== */
+
+let S=Object.assign({mode:GAME.modes[0].id,scope:"all",furi:true,sound:true},store.get(GAME.id+"-settings",{}));
+if(!GAME.modes.some(m=>m.id===S.mode))S.mode=GAME.modes[0].id;
+const save=()=>store.set(GAME.id+"-settings",S);
+function show(id){["menu","quiz","result"].forEach(s=>$("#"+s).hidden=s!==id);window.scrollTo(0,0)}
+let ac;
+function beep(seq){if(!S.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();const t0=ac.currentTime;seq.forEach(([f,d,st])=>{const o=ac.createOscillator(),g=ac.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0.0001,t0+st);g.gain.exponentialRampToValueAtTime(0.25,t0+st+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+st+d);o.connect(g).connect(ac.destination);o.start(t0+st);o.stop(t0+st+d+0.05)})}catch(e){}}
+const SND={ok:[[784,.15,0],[1047,.3,.12]],ng:[[330,.2,0],[247,.35,.16]],end:[[523,.15,0],[659,.15,.13],[784,.15,.26],[1047,.4,.39]]};
+
+document.title=GAME.docTitle;
+$("#ttl").innerHTML=GAME.titleHtml;
+$("#tstamps").innerHTML=GAME.stamps.map(e=>`<div class="stamp">${e}</div>`).join("");
+
+function renderMenu(){
+  const mb=$("#modes");mb.innerHTML="";
+  GAME.modes.forEach(m=>{const b=document.createElement("button");b.className="mode";b.setAttribute("aria-pressed",m.id===S.mode);b.innerHTML=`<span class="me">${m.icon}</span><b>${m.name}</b><small>${m.desc}</small>`;b.onclick=()=>{S.mode=m.id;save();renderMenu()};mb.appendChild(b)});
+  const sc=GAME.scopes?GAME.scopes(S.mode):null;
+  $("#scopeSec").hidden=!sc;
+  if(sc){
+    if(!sc.some(s=>s.id===S.scope))S.scope=sc[0].id;
+    const ch=$("#chips");ch.innerHTML="";
+    sc.forEach(s=>{const b=document.createElement("button");b.className="chip";b.innerHTML=s.html;b.setAttribute("aria-pressed",s.id===S.scope);b.onclick=()=>{S.scope=s.id;save();renderMenu()};ch.appendChild(b)});
+  }
+  const nt=GAME.note?GAME.note(S.mode):"";$("#note").textContent=nt;$("#note").hidden=!nt;
+  $("#furiBtn").textContent="ふりがな："+(S.furi?"あり":"なし");$("#furiBtn").setAttribute("aria-pressed",S.furi);
+  $("#soundBtn").textContent="おと："+(S.sound?"あり":"なし");$("#soundBtn").setAttribute("aria-pressed",S.sound);
+  document.body.classList.toggle("nofuri",!S.furi);
+}
+$("#furiBtn").onclick=()=>{S.furi=!S.furi;save();renderMenu()};
+$("#soundBtn").onclick=()=>{S.sound=!S.sound;save();renderMenu()};
+
+let Q=[],qi=0,score=0,locked=false,results=[];
+async function start(){
+  const btn=$("#start");
+  if(GAME.init){
+    btn.disabled=true;btn.textContent="じゅんびちゅう…";
+    try{await GAME.init();$("#err").hidden=true}catch(e){$("#err").hidden=false;btn.disabled=false;btn.textContent="はじめる";show("menu");return}
+    btn.disabled=false;btn.textContent="はじめる";
+  }
+  const pool=GAME.pool(S.mode,S.scope);
+  const n=Math.min(GAME.n||10,pool.length);
+  Q=shuffle(pool).slice(0,n).map(it=>GAME.makeQ(it,S.mode,pool));
+  qi=0;score=0;results=[];
+  const sh=$("#sheet");sh.innerHTML="";
+  for(let i=0;i<n;i++){const d=document.createElement("div");d.className="slot";sh.appendChild(d)}
+  show("quiz");renderQ();
+}
+function renderQ(){
+  locked=false;const q=Q[qi];
+  $("#count").textContent=`${qi+1} / ${Q.length}`;
+  $("#qvisual").innerHTML=q.visual||`<div class="qemoji">${q.emoji}</div>`;
+  $("#qprompt").textContent=q.prompt;
+  $("#qtext").innerHTML=q.text||"";$("#qtext").hidden=!q.text;
+  $("#hintBtn").hidden=!q.hint;$("#hintBox").hidden=true;$("#hintBox").innerHTML="";
+  const box=$("#choices");box.innerHTML="";box.className="choices "+(q.cls||"");
+  q.choices.forEach((c,i)=>{const b=document.createElement("button");b.innerHTML=c.html;b.onclick=()=>answer(i,b);box.appendChild(b)});
+  $("#feedback").innerHTML="";$("#next").hidden=true;$("#bigstamp").className="bigstamp";
+}
+$("#hintBtn").onclick=()=>{$("#hintBox").innerHTML=Q[qi].hint;$("#hintBox").hidden=false;$("#hintBtn").hidden=true};
+function answer(i,btn){
+  if(locked)return;locked=true;
+  const q=Q[qi],ok=q.choices[i].ok;
+  const btns=[...document.querySelectorAll("#choices button")];
+  btns.forEach(b=>b.disabled=true);
+  btns[q.choices.findIndex(c=>c.ok)].classList.add("ok");
+  if(!ok)btn.classList.add("ng");else score++;
+  results.push({q,ok});
+  const slot=$("#sheet").children[qi];slot.className="slot anim "+(ok?"got":"lost");slot.textContent=q.stampEmoji;
+  $("#feedback").innerHTML=(ok?`<span class="okt">せいかい！</span> `:`<span class="ngt">こたえは</span> `)+q.answer+(q.fact?`<p class="fact">${q.fact}</p>`:"");
+  if(ok){const bs=$("#bigstamp");bs.innerHTML=`<span>${q.stampEmoji}</span><small>せいかい</small>`;void bs.offsetWidth;bs.className="bigstamp on";beep(SND.ok)}else beep(SND.ng);
+  const nx=$("#next");nx.textContent=qi===Q.length-1?"けっかを みる":"つぎへ";nx.hidden=false;
+}
+$("#next").onclick=()=>{qi++;if(qi<Q.length)renderQ();else finish()};
+$("#quit").onclick=()=>{if(confirm("やめて メニューに もどる？")){renderMenu();show("menu")}};
+function finish(){
+  const n=Q.length,key=S.mode+"-"+(GAME.scopes?S.scope:"");
+  const best=store.get(GAME.id+"-best",{});const prev=best[key]||0;
+  if(score>prev){best[key]=score;store.set(GAME.id+"-best",best)}
+  const r=score/n;
+  $("#rtitle").textContent=r===1?"ぜんもん せいかい！💮":r>=.7?"すごい！":r>=.4?"いいかんじ！":"もういちど ちょうせん！";
+  $("#rscore").innerHTML=`<b>${score}</b> / ${n} もん せいかい`;
+  $("#rbest").textContent=(score>prev&&prev>0)?"じこベスト こうしん！":`これまでの ベスト：${Math.max(prev,score)} もん`;
+  $("#rsheet").innerHTML=results.map(({q,ok},i)=>`<div class="rs"><div class="slot ${ok?"got":"lost"}" style="--d:${i*.12}s">${q.stampEmoji}</div>${q.stampName}</div>`).join("");
+  const miss=results.filter(x=>!x.ok);
+  $("#rmissWrap").hidden=!miss.length;
+  $("#rmiss").innerHTML=miss.map(({q})=>`<li><span class="me">${q.stampEmoji}</span><div><b>${q.answer}</b>${q.fact?`<small>${q.fact}</small>`:""}</div></li>`).join("");
+  show("result");beep(SND.end);
+}
+$("#start").onclick=start;$("#again").onclick=start;
+$("#tomenu").onclick=()=>{renderMenu();show("menu")};
+renderMenu();
+</script>
+</body>
+</html>
